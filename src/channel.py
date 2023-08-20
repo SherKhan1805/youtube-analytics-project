@@ -9,20 +9,57 @@ class Channel:
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала.
         Дальше все данные будут подтягиваться по API."""
-        self.channel_id = channel_id
-
-    def print_info(self) -> None:
-        """Выводит в консоль информацию о канале."""
 
         api_key: str = os.getenv('API_KEY')
         # создан специальный объект для работы с API
         youtube = build('youtube', 'v3', developerKey=api_key)
-
-        def printj(dict_to_print: dict) -> None:
-            """Выводит словарь в json-подобном удобном формате с отступами"""
-            print(json.dumps(dict_to_print, indent=2, ensure_ascii=False))
-
-        # channel_id = 'UC-OVMPlMA3-YCIeg4z5z23A'  # HighLoad Channel
-        channel_id = 'UCwHL6WHUarjGfUM_586me8w'
+        self.youtube = youtube
+        self.__channel_id = channel_id
+        # получаем данные о канале
         channel = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
-        printj(channel)
+        channel_list = channel["items"]
+        for item in channel_list:
+            self.title = item['snippet']['title']
+            self.description = item['snippet']['description']
+            self.url = 'https://www.youtube.com/channel/' + self.__channel_id
+            self.subscriber = item['statistics']['subscriberCount']
+            self.video_count = item['statistics']['viewCount']
+            self.view_count = item['statistics']['videoCount']
+
+    @property
+    def channel_id(self):
+        """
+        Возвращает приватное имя канала
+        """
+        return self.__channel_id
+
+    @classmethod
+    def get_service(cls):
+        """
+        Возвращаюет объект для работы с YouTube API
+        """
+        api_key: str = os.getenv('API_KEY')
+        # создан специальный объект для работы с API
+        youtube_new = build('youtube', 'v3', developerKey=api_key)
+        return youtube_new
+
+
+    def to_json(self, name_dict):
+        """
+        Получает имя файла json и создает файл со значениями атрибутов экземпляра `Channel`
+        """
+        self.name_dict = name_dict
+        name_dict = {
+            'channel_id': self.__channel_id,
+            'title': self.title,
+            'description': self.description,
+            'url': self.url,
+            'subscriber': self.subscriber,
+            'video_count': self.video_count,
+            'view_count': self.view_count,
+        }
+
+        print(json.dumps(name_dict, ensure_ascii=False, indent=4))
+
+        with open(self.name_dict, 'w') as file:
+            json.dump(name_dict, file)
