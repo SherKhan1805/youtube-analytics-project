@@ -26,6 +26,24 @@ class Channel:
             self.video_count = item['statistics']['viewCount']
             self.view_count = item['statistics']['videoCount']
 
+    """
+    Реализуем сложение, вычитание и сравнение подписчиков двух YouTube каналов
+    """
+    def __str__(self):
+        return str(f'{self.title} ({self.url})')
+
+    def __add__(self, other):
+        return int(self.subscriber) + int(other.subscriber)
+
+    def __sub__(self, other):
+        return int(self.subscriber) - int(other.subscriber)
+
+    def __gt__(self, other):
+        return int(self.subscriber) > int(other.subscriber)
+
+    def __ge__(self, other):
+        return int(self.subscriber) >= int(other.subscriber)
+
     @property
     def channel_id(self):
         """
